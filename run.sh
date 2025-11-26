@@ -2,12 +2,12 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 SQUEEZE_ROOTFS="$DIR/../squeeze_root"
-LIBKTTSPROJECT_ROOT="$DIR/../libkttsproject_root"
+LIBKTTSPROJECT_ROOTFS="$DIR/../libkttsproject_root"
 
-RUSTFLAGS="-L $(pwd)/../libkttsproject_root/usr/lib/ -L $(pwd)/../squeeze_root/usr/lib/" \
+RUSTFLAGS="-L $LIBKTTSPROJECT_ROOTFS/usr/lib/ -L $SQUEEZE_ROOTFS/usr/lib/" \
 	cargo build --target i686-unknown-linux-gnu
 
-LD_LIBRARY_PATH="/usr/lib32/:$LIBKTTSPROJECT_ROOT/usr/lib/:$SQUEEZE_ROOTFS/lib:$SQUEEZE_ROOTFS/usr/lib/" \
+LD_LIBRARY_PATH="/usr/lib32/:$LIBKTTSPROJECT_ROOTFS/usr/lib/:$SQUEEZE_ROOTFS/lib:$SQUEEZE_ROOTFS/usr/lib/" \
 	"$DIR/target/i686-unknown-linux-gnu/debug/libktts-server" \
-		--dic "$LIBKTTSPROJECT_ROOT/usr/share/apps/kttsdb/" \
+		--dic "$LIBKTTSPROJECT_ROOTFS/usr/share/apps/kttsdb/" \
 		--listen 0.0.0.0:3000

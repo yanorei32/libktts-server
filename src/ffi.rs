@@ -10,4 +10,3 @@ unsafe extern "C" {
         callback: unsafe extern "C" fn(i32, i32, i32, i32),
     ) -> i32;
 }
-
