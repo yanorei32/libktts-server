@@ -39,7 +39,7 @@ RUN cargo install cargo-license && cargo license \
 	--do-not-bundle \
 	--avoid-dev-deps \
 	--avoid-build-deps \
-	--filter-platform "$(rustc -vV | sed -n 's|host: ||p')" \
+	--filter-platform i686-unknown-linux-gnu \
 	> CREDITS
 
 RUN --mount=type=bind,from=debian-squeeze-extract-env,source=/squeeze_root,target=/squeeze_root \
