@@ -1,12 +1,14 @@
 use std::ffi::CString;
+use std::os::fd::FromRawFd;
 use std::fs::File;
 use std::io::{Read, Seek};
 use std::net::SocketAddr;
 use std::os::fd::AsRawFd;
+use std::os::fd::OwnedFd;
 
 use clap::Parser;
-use nix::sys::memfd;
 use tokio::sync::{mpsc, oneshot};
+use tokio::signal::unix::{signal, SignalKind};
 use utf16string::{LittleEndian, WString};
 
 mod ffi;
@@ -55,8 +57,16 @@ async fn main() {
             .unwrap();
     });
 
+    let mut sigterm = signal(SignalKind::terminate()).unwrap();
+
     loop {
         tokio::select! {
+            _ = sigterm.recv() => {
+                break;
+            }
+            _ = tokio::signal::ctrl_c() => {
+                break;
+            },
             error = &mut shutdown_rx => {
                 error.unwrap().unwrap();
                 break;
@@ -65,7 +75,14 @@ async fn main() {
                 let mut req = req.unwrap();
 
                 // create temporary memfd
-                let fd = memfd::memfd_create("tts_out", memfd::MFdFlags::empty()).unwrap();
+                let fd = unsafe { libc::syscall(356, "tts".as_ptr(), 1) as i32 };
+
+                if fd < 0 {
+                    panic!("Failed to create memfd");
+                }
+
+                let fd = unsafe { OwnedFd::from_raw_fd(fd) };
+
                 let path = CString::new(format!("/proc/self/fd/{}", fd.as_raw_fd()) ).unwrap();
 
                 // create NULL terminated UTF-16 buffer
