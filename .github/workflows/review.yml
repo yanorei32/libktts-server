@@ -1,0 +1,61 @@
+name: Review
+
+on:
+  pull_request:
+    paths:
+      - '*/src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/review.yml'
+
+env:
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  rust:
+    strategy:
+      matrix:
+        include:
+          - ghimage: ubuntu-24.04
+            dockerarch: linux/amd64
+            mcarch: amd64
+
+    permissions:
+      packages: write
+      checks: write
+      contents: read
+      deployments: write
+
+    runs-on: ${{ matrix.ghimage }}
+
+    steps:
+      - run: |
+          sudo curl "https://dl.min.io/client/mc/release/linux-${{ matrix.mcarch }}/mc" -o /bin/mc
+          sudo chmod +x /bin/mc
+          mc alias set yr32srv https://rustfs.yr32.net libktts-ci "${{ secrets.YR32SRV_LIBKTTS_CI_SECRET }}"
+          pushd packages
+          mc get yr32srv/libktts/libkttsproject-4.0-1.i386.rpm ./libkttsproject-4.0-1.i386.rpm
+          popd
+
+      - name: Get Rust toolchain
+        id: toolchain
+        run: |
+          awk -F'[ ="]+' '$1 == "channel" { print "toolchain=" $2 }' rust-toolchain >> "$GITHUB_OUTPUT"
+
+      - name: install clippy
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ steps.toolchain.outputs.toolchain }}
+          components: clippy
+
+      - name: cache dependencies
+        uses: Swatinem/rust-cache@v2.8.2
+
+      - name: clippy check
+        uses: yanorei32/action-clippy@50412b135153ebee7d4b8a5b868c4defdc663683
+        with:
+          reporter: github-pr-review
+
+      - name: cargo check
+        run: |
+          cargo check
