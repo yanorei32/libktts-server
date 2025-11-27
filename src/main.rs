@@ -24,6 +24,9 @@ struct Cli {
 
     #[clap(long, env, default_value = "/usr/share/apps/kttsdb/")]
     dic: String,
+
+    #[clap(long, env, default_value = "0")]
+    maximum_length: usize,
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -53,7 +56,7 @@ async fn main() {
 
     tokio::spawn(async move {
         shutdown_tx
-            .send(web::serve(listener, req_tx).await)
+            .send(web::serve(listener, req_tx, cli.maximum_length).await)
             .unwrap();
     });
 
@@ -73,6 +76,8 @@ async fn main() {
             },
             req = req_rx.recv() => {
                 let mut req = req.unwrap();
+
+                let start_at = std::time::Instant::now();
 
                 // create temporary memfd
                 let fd = unsafe { libc::syscall(356, "tts".as_ptr(), 1) as i32 };
@@ -101,6 +106,10 @@ async fn main() {
                 // read to buffer
                 let mut bytes = vec![];
                 file.read_to_end(&mut bytes).unwrap();
+
+                let end_at = std::time::Instant::now();
+
+                tracing::info!("Synthesis: {:?}", end_at - start_at);
 
                 // response
                 req.response.send(model::ResponseContext {
