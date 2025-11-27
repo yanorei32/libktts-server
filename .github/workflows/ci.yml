@@ -31,10 +31,6 @@ jobs:
             dockerarch: linux/amd64
             mcarch: amd64
 
-          - ghimage: ubuntu-24.04-arm
-            dockerarch: linux/arm64
-            mcarch: arm64
-
     permissions:
       packages: write
       checks: write
