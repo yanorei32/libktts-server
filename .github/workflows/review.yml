@@ -29,6 +29,8 @@ jobs:
     runs-on: ${{ matrix.ghimage }}
 
     steps:
+      - uses: actions/checkout@v6.0.0
+
       - run: |
           sudo curl "https://dl.min.io/client/mc/release/linux-${{ matrix.mcarch }}/mc" -o /bin/mc
           sudo chmod +x /bin/mc
