@@ -26,7 +26,7 @@ async fn tts_handler(
     if state.maximum_length != 0 && state.maximum_length < req.text.chars().count() {
         return (
             StatusCode::BAD_REQUEST,
-            [(header::CONTENT_TYPE, "audio/wav")],
+            [(header::CONTENT_TYPE, "text/plain")],
             format!("Maximum length ({}) exceeded", state.maximum_length).into_bytes(),
         );
     }
