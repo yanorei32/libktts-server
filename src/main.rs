@@ -1,14 +1,14 @@
 use std::ffi::CString;
-use std::os::fd::FromRawFd;
 use std::fs::File;
 use std::io::{Read, Seek};
 use std::net::SocketAddr;
 use std::os::fd::AsRawFd;
+use std::os::fd::FromRawFd;
 use std::os::fd::OwnedFd;
 
 use clap::Parser;
+use tokio::signal::unix::{SignalKind, signal};
 use tokio::sync::{mpsc, oneshot};
-use tokio::signal::unix::{signal, SignalKind};
 use utf16string::{LittleEndian, WString};
 
 mod ffi;
@@ -80,7 +80,9 @@ async fn main() {
                 let start_at = std::time::Instant::now();
 
                 // create temporary memfd
-                let fd = unsafe { libc::syscall(356, "tts".as_ptr(), 1) as i32 };
+                let fd = unsafe {
+                    libc::syscall(libc::SYS_memfd_create, "tts".as_ptr(), 0) as i32
+                };
 
                 if fd < 0 {
                     panic!("Failed to create memfd");
