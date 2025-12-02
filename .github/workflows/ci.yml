@@ -41,7 +41,7 @@ jobs:
     runs-on: ${{ matrix.ghimage }}
 
     steps:
-      - uses: actions/checkout@v6.0.0
+      - uses: actions/checkout@v6.0.1
 
       - run: |
           sudo curl "https://dl.min.io/client/mc/release/linux-${{ matrix.mcarch }}/mc" -o /bin/mc
@@ -94,7 +94,7 @@ jobs:
     runs-on: ${{ matrix.ghimage }}
 
     steps:
-      - uses: actions/checkout@v6.0.0
+      - uses: actions/checkout@v6.0.1
         with:
           submodules: true
 
