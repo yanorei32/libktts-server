@@ -34,7 +34,7 @@ jobs:
       - run: |
           sudo curl "https://dl.min.io/client/mc/release/linux-${{ matrix.mcarch }}/mc" -o /bin/mc
           sudo chmod +x /bin/mc
-          mc alias set yr32srv https://rustfs.yr32.net libktts-ci "${{ secrets.YR32SRV_LIBKTTS_CI_SECRET }}"
+          mc alias set yr32srv https://rustfs-s3.yr32.net libktts-ci "${{ secrets.YR32SRV_LIBKTTS_CI_SECRET }}"
           pushd packages
           mc get yr32srv/libktts/libkttsproject-4.0-1.i386.rpm ./libkttsproject-4.0-1.i386.rpm
           popd
