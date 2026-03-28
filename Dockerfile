@@ -36,7 +36,7 @@ RUN apt-get update && \
 		squeeze /squeeze_root https://archive.debian.org/debian/
 
 
-FROM rust:1.94.0-trixie AS build-env
+FROM rust:1.94.1-trixie AS build-env
 
 WORKDIR /usr/src
 
