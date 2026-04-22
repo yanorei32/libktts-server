@@ -82,7 +82,7 @@ async fn main() {
 
                 // create temporary memfd
                 let fd = unsafe {
-                    libc::syscall(libc::SYS_memfd_create, c"tts", 0) as i32
+                    libc::syscall(libc::SYS_memfd_create, c"tts".as_ptr(), 0) as i32
                 };
 
                 if fd < 0 {
