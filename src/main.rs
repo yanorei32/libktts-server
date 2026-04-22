@@ -31,6 +31,7 @@ struct Cli {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    let numerical_capture_re = regex::Regex::new(r"(\d+)").unwrap();
     tracing_subscriber::fmt().init();
 
     let cli = Cli::parse();
@@ -75,26 +76,31 @@ async fn main() {
                 break;
             },
             req = req_rx.recv() => {
-                let mut req = req.unwrap();
+                let req = req.unwrap();
 
                 let start_at = std::time::Instant::now();
 
                 // create temporary memfd
                 let fd = unsafe {
-                    libc::syscall(libc::SYS_memfd_create, "tts".as_ptr(), 0) as i32
+                    libc::syscall(libc::SYS_memfd_create, c"tts", 0) as i32
                 };
 
                 if fd < 0 {
-                    panic!("Failed to create memfd");
+                    let errno_address = unsafe { libc::__errno_location() };
+                    let errno = unsafe { *errno_address };
+                    panic!("Failed to create memfd {errno}");
                 }
 
                 let fd = unsafe { OwnedFd::from_raw_fd(fd) };
 
                 let path = CString::new(format!("/proc/self/fd/{}", fd.as_raw_fd()) ).unwrap();
 
+                // Sanitize numerical text that may cause SEGV
+                let mut text = numerical_capture_re.replace_all(&req.text, " $1 ").to_string();
+
                 // create NULL terminated UTF-16 buffer
-                req.text.push('\0');
-                let text: WString<LittleEndian> = WString::from(&req.text);
+                text.push('\0');
+                let text: WString<LittleEndian> = WString::from(&text);
 
                 // tts
                 unsafe { ffi::TextToPcmFile(text.as_bytes().as_ptr(), path.as_ptr(), empty_callback) };
