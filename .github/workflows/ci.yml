@@ -29,7 +29,6 @@ jobs:
       matrix:
         include:
           - ghimage: ubuntu-24.04
-            dockerarch: linux/amd64
             mcarch: amd64
 
     permissions:
@@ -131,7 +130,7 @@ jobs:
         id: build
         with:
           context: .
-          platforms: ${{ matrix.dockerimage }}
+          platforms: ${{ matrix.dockerarch }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: ${{ github.event_name != 'pull_request' }}
