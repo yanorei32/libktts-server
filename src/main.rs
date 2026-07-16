@@ -99,7 +99,7 @@ async fn main() {
                 // Sanitize numerical text that may cause SEGV
                 let text = regex!(r"(\d+)").replace_all(&req.text, " $1 ").to_string();
 
-                // Sanitize "yuta" text that may cause DoS
+                // Sanitize "yuta" text that cause DoS
                 let mut text = regex!(r"yuta").replace_all(&text, "yu ta").to_string();
 
                 // create NULL terminated UTF-16 buffer
