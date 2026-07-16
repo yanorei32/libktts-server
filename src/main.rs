@@ -100,7 +100,10 @@ async fn main() {
                 let text = regex!(r"(\d+)").replace_all(&req.text, " $1 ").to_string();
 
                 // Sanitize "yuta" text that cause DoS
-                let mut text = regex!(r"yuta").replace_all(&text, "yu ta").to_string();
+                let text = regex!(r"yuta").replace_all(&text, "yu ta").to_string();
+
+                // Sanitize "yuqa" text that cause DoS
+                let mut text = regex!(r"yuqa").replace_all(&text, "yu qa").to_string();
 
                 // create NULL terminated UTF-16 buffer
                 text.push('\0');
