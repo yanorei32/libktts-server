@@ -97,13 +97,14 @@ async fn main() {
                 let path = CString::new(format!("/proc/self/fd/{}", fd.as_raw_fd()) ).unwrap();
 
                 // Sanitize numerical text that may cause SEGV
-                let text = regex!(r"(\d+)").replace_all(&req.text, " $1 ").to_string();
+                let mut text = regex!(r"(\d+)").replace_all(&req.text, " $1 ").to_string();
 
-                // Sanitize "yuta" text that cause DoS
-                let text = regex!(r"yuta").replace_all(&text, "yu ta").to_string();
+                // Sanitize likes "yuta" text that may cause DoS
+                let yuta_like_regex = regex!("(?i)([yｙ][eｅ]?[uｕ])([^ ]*?[aiueoａｉｕｅｏ])");
 
-                // Sanitize "yuqa" text that cause DoS
-                let mut text = regex!(r"yuqa").replace_all(&text, "yu qa").to_string();
+                while yuta_like_regex.is_match(&text) {
+                    text = yuta_like_regex.replace_all(&text, "$1 $2").to_string();
+                }
 
                 // create NULL terminated UTF-16 buffer
                 text.push('\0');
