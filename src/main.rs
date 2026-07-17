@@ -100,7 +100,7 @@ async fn main() {
                 let mut text = regex!(r"(\d+)").replace_all(&req.text, " $1 ").to_string();
 
                 // Sanitize likes "yuta" text that may cause DoS
-                let yuta_like_regex = regex!("(?i)([yｙ][eｅuｕ])([^ ]*?[aiueoａｉｕｅｏ])");
+                let yuta_like_regex = regex!("(?i)([yｙＹ][eｅＥuｕＵ])([a-zａ-ｚＡ-Ｚ]*?[aiueoａｉｕｅｏＡＩＵＥＯ])");
 
                 while yuta_like_regex.is_match(&text) {
                     text = yuta_like_regex.replace_all(&text, "$1 $2").to_string();
